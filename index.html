@@ -1,145 +1,158 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>BLEDOM Controller — Improved UI</title>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLEDOM Controller</title>
 
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" />
-
-<style>
-  :root{
-    --bg:#0f1720;
-    --card:#0b1220;
-    --accent:#1ea7ff;
-    --muted:#98a0aa;
-    --glass: rgba(255,255,255,0.03);
-    --success:#16a34a;
-  }
-  html,body{height:100%;margin:0;font-family:"Roboto",system-ui,Segoe UI,Roboto,Arial; background:
-    linear-gradient(180deg,#071021 0%, #07172a 60%); color:#e6eef6}
-  .wrap{max-width:1000px;margin:28px auto;padding:20px;}
-  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-  h1{margin:0;font-weight:500;font-size:20px}
-  .brand-sub{color:var(--muted);font-size:13px}
-
-  .topbar{
-    display:flex;gap:12px;align-items:center;margin-bottom:18px;
-  }
-  .status{
-    padding:10px 14px;border-radius:10px;background:var(--glass);
-    display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,0.03);
-  }
-  .deviceName{font-weight:600}
-  .small-muted{font-size:13px;color:var(--muted)}
-
-  .btn {
-    display:inline-flex;align-items:center;gap:8px;
-    background:linear-gradient(180deg,var(--accent),#128fd1);
-    border:none;color:#021124;padding:8px 12px;border-radius:8px;
-    cursor:pointer;font-weight:500;box-shadow:0 4px 14px rgba(30,167,255,0.15);
-  }
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);box-shadow:none}
-  .btn.warn{background:#ff7a59;color:#100b05}
-  .grid{display:grid;grid-template-columns: 1fr 340px; gap:18px;align-items:start}
-  @media (max-width:900px){ .grid{grid-template-columns: 1fr} }
-
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-       border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03)}
-  .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-  .controls-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .color-btn{width:46px;height:34px;border-radius:8px;border:none;cursor:pointer}
-  .color-preview{width:46px;height:34px;border-radius:6px;border:1px solid rgba(0,0,0,0.25)}
-  label.small{font-size:13px;color:var(--muted);margin-right:8px}
-
-  select,input[type=range]{width:100%;margin-top:6px;margin-bottom:8px}
-  .meta-row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:8px}
-  .muted{color:var(--muted);font-size:13px}
-  .footer-note{font-size:12px;color:var(--muted);margin-top:12px}
-
-  /* collapsible */
-  .collapsible{cursor:pointer;padding:6px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02)}
-  .hidden{display:none}
-</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
+
+<body data-new-gr-c-s-check-loaded="14.1122.0" data-gr-ext-installed="">
   <div class="wrap">
     <header>
       <div>
         <h1>BLEDOM Controller</h1>
-        <div class="brand-sub">Clean UI • Live brightness • Auto-safe BLE writes</div>
+<div class="topbar">
+  <div class="small-muted">
+        <div id="supportMsg">Web Bluetooth supported</div>
+      </div>
+    </div>
       </div>
     </header>
 
-    <div class="topbar">
-      <div class="status card" id="statusPanel">
-        <div>
-          <div class="small-muted">Device</div>
-          <div class="deviceName" id="deviceName">Not connected</div>
+    
+
+    <!-- New row (connection / power / connection-management) -->
+    <div class="grid grid-top-row" style="margin-bottom:14px">
+      <!-- Left column wrapper: force both cards into the left grid cell so they stack together -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="section-title">
+            <strong>Connection</strong>
+            <div class="muted">Device status</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div>
+              <div class="small-muted">Device</div>
+              <div class="deviceName" id="deviceNameTop">Not connected</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn" id="connectBtnTop">Connect</button>
+              <button class="btn ghost hidden" id="disconnectBtnTop">Disconnect</button>
+            </div>
+          </div>
         </div>
-        <div style="margin-left:12px" id="statusControls">
-          <button class="btn" id="connectBtn">Connect</button>
-          <button class="btn ghost hidden" id="disconnectBtn">Disconnect</button>
+
+        <div class="card">
+          <div class="section-title">
+            <strong>Power Controls</strong>
+            <div class="muted">Turn device on or off</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" id="powerOnBtn">Power On</button>
+            <button class="btn ghost" id="powerOffBtn">Power Off</button>
+          </div>
         </div>
       </div>
 
-      <div style="margin-left:auto" class="small-muted">
-        <div id="supportMsg">Checking browser support...</div>
-      </div>
+      <!-- Right column placeholder (keeps original two-column grid structure) -->
+      <div></div>
     </div>
 
     <div class="grid">
       <!-- Left main column -->
       <div>
-        <!-- Default Colors -->
+        <!-- Default Colors + Brightness -->
         <div class="card" style="margin-bottom:14px">
           <div class="section-title">
-            <strong>Default Colors</strong>
-            <div class="muted">Quick presets</div>
+            <strong>Default Colors (Edited For Color Accuracy)</strong>
+            <div class="muted">Pick Your Own Color</div>
           </div>
 
-          <div class="controls-row" style="margin-bottom:10px">
-            <button class="color-btn" style="background:#ff3b30" title="Red" data-color="#ff3b30"></button>
-            <button class="color-btn" style="background:#34c759" title="Green" data-color="#34c759"></button>
-            <button class="color-btn" style="background:#007aff" title="Blue" data-color="#007aff"></button>
-            <button class="color-btn" style="background:#ffd60a" title="Yellow" data-color="#ffd60a"></button>
-            <button class="color-btn" style="background:#00c7c7" title="Cyan" data-color="#00c7c7"></button>
-            <button class="color-btn" style="background:#ff2d55" title="Magenta" data-color="#ff2d55"></button>
+          <div class="controls-row preset-colors" style="margin-bottom:10px">
+            <!-- DO NOT FUCKING CHANGE THIS SHIT -->
+
+            <button class="color-btn" style="background:#ff0000" title="Red" data-color="#ff0000"></button>
+            <button class="color-btn" style="background:#ff00ea" title="Pink" data-color="#FF0064"></button>
+            <button class="color-btn" style="background:#5e5ce6" title="Indigo" data-color="#FF00FC"></button>
+
+            <button class="color-btn" style="background:#007aff" title="Blue" data-color="#0000ff"></button>
+            <button class="color-btn" style="background:#00c7c7" title="Cyan" data-color="#00ffff"></button>
+            <button class="color-btn" style="background:#34c759" title="Green" data-color="#06bd00"></button>
+            <button class="color-btn" style="background:#fff176" title="Light Yellow" data-color="#b84000"></button>
+
+            <button class="color-btn" style="background:#ffffff" title="White v2" data-color="#fa6261"></button>
+
+<!--         
+            <button class="color-btn" style="background:#ff0000" title="Red" data-color="#ff0000"></button>
+            <button class="color-btn" style="background:#ff00ea" title="Pink" data-color="#FF0064"></button>
+            <button class="color-btn" style="background:#5e5ce6" title="Indigo" data-color="#FF00FC"></button>
+
+            <button class="color-btn" style="background:#007aff" title="Blue" data-color="#0000ff"></button>
+            <button class="color-btn" style="background:#00c7c7" title="Cyan" data-color="#00ffff"></button>
+            <button class="color-btn" style="background:#34c759" title="Green" data-color="#06bd00"></button>
+            <button class="color-btn" style="background:#fff176" title="Light Yellow" data-color="#b84000"></button>
+
+            <button class="color-btn" style="background:#ffffff" title="White v2" data-color="#fa6261"></button>
+            
+            -->
+            
 
             <div style="flex:1"></div>
 
             <input id="customColorInput" type="color" value="#ff0000" style="height:36px;border-radius:8px;border:none">
-            <div class="color-preview" id="colorPreview" style="background:#ff0000"></div>
+            <div class="color-preview" id="colorPreview" style="background: rgb(255, 0, 0);"></div>
           </div>
 
-          <div class="meta-row">
+          <div class="meta-row" style="align-items:center">
             <div class="muted">Current color: <span id="currentColorText">#FF0000</span></div>
-            <div>
+            <div style="display:flex;gap:8px;align-items:center">
               <button class="btn ghost" id="applyColorBtn">Apply</button>
+            </div>
+          </div>
+
+          <!-- Brightness moved here -->
+          <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)">
+          <div>
+            <label class="small">Brightness (Live Change)</label>
+            <input id="brightnessSlider" type="range" min="0" max="100" step="1" value="100">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <div class="muted">Current: <span id="brightnessValue">100%</span></div>
+              <div><button class="btn ghost" id="setFullBtn">Full Bright</button></div>
             </div>
           </div>
         </div>
 
-        <!-- Effects -->
+        <!-- Combined Effects card: Presets + Modes + Speed -->
         <div class="card" style="margin-bottom:14px">
           <div class="section-title">
-            <strong>Effects & Modes</strong>
-            <div class="muted">Select effect or dynamic mode</div>
+            <strong>Effects</strong>
+            <div class="muted">Presets, modes and speed controls</div>
           </div>
 
-          <div>
-            <label class="small">Preset effect</label>
-            <select id="modeSelect">
-              <option value="" selected disabled>Choose effect</option>
-              <option value="red">Red</option>
-              <option value="green">Green</option>
-              <option value="blue">Blue</option>
-              <option value="jump_rgb">Jump (RGB)</option>
-              <option value="gradient_rgb">Fade (RGB)</option>
-              <option value="blink_rgbycmw">Blink (RGBYCMW)</option>
-            </select>
+          <!-- Preset Effects (buttons) -->
+          <div id="presetEffectsSections" style="margin-bottom:12px">
+            <div class="preset-section">
+              <h3 class="preset-section-title">Solid</h3>
+              <div id="presetGridSolid" class="preset-grid" aria-label="Solid effects"></div>
+            </div>
+            <div class="preset-section">
+              <h3 class="preset-section-title">Jump</h3>
+              <div id="presetGridJump" class="preset-grid" aria-label="Jump effects"></div>
+            </div>
+            <div class="preset-section">
+              <h3 class="preset-section-title">Fade</h3>
+              <div id="presetGridFade" class="preset-grid" aria-label="Fade effects"></div>
+            </div>
+            <div class="preset-section">
+              <h3 class="preset-section-title">Blink</h3>
+              <div id="presetGridBlink" class="preset-grid" aria-label="Blink effects"></div>
+            </div>
+          </div>
 
+          <!-- Modes -->
+          <div style="margin-bottom:12px">
             <label class="small">Dynamic mode</label>
             <select id="dynamicSelect">
               <option value="" selected disabled>Choose dynamic</option>
@@ -150,9 +163,14 @@
             </select>
           </div>
 
-          <div class="meta-row">
-            <div class="muted">Use effect / dynamic to control LEDs</div>
-            <div><button class="btn ghost" id="stopEffects">Stop</button></div>
+          <!-- Speed & Stop -->
+          <div>
+            <label class="small" for="effectSpeed">Effect speed</label>
+            <input id="effectSpeed" type="range" min="0" max="100" step="1" value="50">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <div class="muted">Current speed: <span id="effectSpeedValue">50</span></div>
+              <div><button class="btn ghost" id="stopEffects">Stop</button></div>
+            </div>
           </div>
         </div>
 
@@ -181,7 +199,7 @@
         <!-- Keyboard / MIDI -->
         <div class="card">
           <div class="section-title">
-            <strong>Keyboard & MIDI</strong>
+            <strong>Keyboard &amp; MIDI</strong>
             <div class="muted">Play colors with keys or MIDI</div>
           </div>
 
@@ -206,364 +224,12 @@
 
       <!-- Right sidebar -->
       <aside>
-        <div class="card" style="margin-bottom:14px">
-          <div class="section-title">
-            <strong>Brightness</strong>
-            <div class="muted">Fine control</div>
-          </div>
-
-          <div>
-            <label class="small">Brightness</label>
-            <input id="brightnessSlider" type="range" min="0" max="100" step="1" value="100">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-              <div class="muted">Current: <span id="brightnessValue">100%</span></div>
-              <div><button class="btn ghost" id="setFullBtn">100%</button></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">
-            <strong>Connection</strong>
-            <div class="muted">Manage device</div>
-          </div>
-
-          <div>
-            <div class="muted">Selected Device:</div>
-            <div style="font-weight:600" id="selectedDevice">—</div>
-            <div style="margin-top:10px">
-              <button class="btn" id="reconnectBtn" disabled>Reconnect</button>
-              <button class="btn ghost" id="forgetBtn">Forget</button>
-            </div>
-            <div class="footer-note">Tip: use "Connect" then choose your device from the browser picker.</div>
-          </div>
-        </div>
+        
       </aside>
     </div>
-
   </div>
 
-  <script>
-  /***********************
-   * Helper utilities
-   ***********************/
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v|0));
-  function limitHex(v){ return clamp(v, 0, 255); }
-  function limitPerc(v){ return clamp(v, 0, 100); }
-  function rgbToHex(r,g,b){
-    const to2 = n => ('0'+(n|0).toString(16)).slice(-2);
-    return ('#'+to2(r)+to2(g)+to2(b)).toUpperCase();
-  }
-  function hexToRgb(hex){
-    if(!hex) return {r:0,g:0,b:0};
-    hex = hex.replace('#','');
-    if(hex.length === 3) hex = hex.split('').map(s=>s+s).join('');
-    return { r: parseInt(hex.substr(0,2),16), g: parseInt(hex.substr(2,2),16), b: parseInt(hex.substr(4,2),16) };
-  }
+  <script src="main.js"></script>
 
-  /***********************
-   * BLE + device state
-   ***********************/
-  let bleDevice = null;
-  let char = null;
-  let commandInProgress = false;
-  let deviceNameEl = document.getElementById('deviceName');
-  let selectedDeviceEl = document.getElementById('selectedDevice');
 
-  // UI elements
-  const connectBtn = document.getElementById('connectBtn');
-  const disconnectBtn = document.getElementById('disconnectBtn');
-  const reconnectBtn = document.getElementById('reconnectBtn');
-  const forgetBtn = document.getElementById('forgetBtn');
-
-  // browser support check
-  const supportMsg = document.getElementById('supportMsg');
-  if('bluetooth' in navigator && 'permissions' in navigator){
-    supportMsg.textContent = 'Web Bluetooth supported';
-    document.getElementById('yesyes').style.display = 'block';
-  } else {
-    supportMsg.textContent = 'Web Bluetooth NOT supported. Use Chrome/Edge on desktop or Android.';
-    document.getElementById('nosupport')?.style.display = 'block';
-  }
-
-  /***********************
-   * BLE functions
-   ***********************/
-  async function searchBLEDom(){
-    try {
-      connectBtn.disabled = true;
-      connectBtn.textContent = 'Picking...';
-
-      const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: ['0000fff0-0000-1000-8000-00805f9b34fb']
-      });
-
-      // Save selected device
-      bleDevice = device;
-      updateDeviceUI();
-
-      device.addEventListener('gattserverdisconnected', onDisconnected);
-
-      connectBtn.textContent = 'Connecting...';
-
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
-      char = await service.getCharacteristic('0000fff3-0000-1000-8000-00805f9b34fb');
-
-      connectBtn.classList.add('hidden');
-      disconnectBtn.classList.remove('hidden');
-      reconnectBtn.disabled = false;
-
-      // initial state
-      setColorHex(document.getElementById('customColorInput').value);
-      setBrightness(parseInt(document.getElementById('brightnessSlider').value));
-
-      connectBtn.textContent = 'Connect';
-      connectBtn.disabled = false;
-    } catch(err){
-      console.error('BLE error', err);
-      connectBtn.textContent = 'Connect';
-      connectBtn.disabled = false;
-    }
-  }
-
-  function onDisconnected(event){
-    console.log('device disconnected', event);
-    char = null;
-    // show reconnect option
-    disconnectBtn.classList.add('hidden');
-    connectBtn.classList.remove('hidden');
-    reconnectBtn.disabled = false;
-    deviceNameEl.textContent = 'Disconnected';
-  }
-
-  function disconnectDevice(){
-    try{
-      if(bleDevice && bleDevice.gatt && bleDevice.gatt.connected){
-        bleDevice.gatt.disconnect();
-      }
-      char = null;
-      disconnectBtn.classList.add('hidden');
-      connectBtn.classList.remove('hidden');
-      reconnectBtn.disabled = false;
-      deviceNameEl.textContent = 'Not connected';
-      selectedDeviceEl.textContent = '—';
-      bleDevice = null;
-    }catch(e){console.warn(e)}
-  }
-
-  function forgetDevice(){
-    // clearing reference (won't un-pair OS-level)
-    bleDevice = null;
-    char = null;
-    deviceNameEl.textContent = 'Not connected';
-    selectedDeviceEl.textContent = '—';
-    reconnectBtn.disabled = true;
-    disconnectBtn.classList.add('hidden');
-    connectBtn.classList.remove('hidden');
-  }
-
-  function updateDeviceUI(){
-    const name = (bleDevice && (bleDevice.name || bleDevice.id)) || 'Not connected';
-    deviceNameEl.textContent = name;
-    selectedDeviceEl.textContent = name;
-  }
-
-  async function sendCommand(command, onSuccess){
-    if(!char){
-      console.warn('No connected characteristic to write to.');
-      return;
-    }
-    if(commandInProgress) return; // simple lock
-    commandInProgress = true;
-    try {
-      await char.writeValue(command);
-      commandInProgress = false;
-      if(typeof onSuccess === 'function') onSuccess();
-    } catch(err){
-      commandInProgress = false;
-      console.error('Write error', err);
-    }
-  }
-
-  /***********************
-   * Controls (color/brightness/effects)
-   ***********************/
-  // set color: sends BLEDOM frame: 0x7e .. data .. 0xef
-  function setColor(r,g,b,onSuccess){
-    // update picker + preview
-    const hex = rgbToHex(r,g,b);
-    document.getElementById('customColorInput').value = hex;
-    document.getElementById('colorPreview').style.background = hex;
-    document.getElementById('currentColorText').textContent = hex;
-
-    // build command (BLEDOM format used earlier)
-    const arr = new Uint8Array([0x7e, 0x00, 0x05, 0x03, limitHex(r), limitHex(g), limitHex(b), 0x00, 0xef]);
-    sendCommand(arr.buffer, onSuccess);
-  }
-
-  function setColorHex(hex, onSuccess){
-    const rgb = hexToRgb(hex);
-    setColor(rgb.r, rgb.g, rgb.b, onSuccess);
-  }
-
-  // brightness slider uses debounce to avoid spamming writes
-  let brightnessDebounce = null;
-  function setBrightness(value, onSuccess){
-    value = limitPerc(value);
-    document.getElementById('brightnessValue').textContent = value + '%';
-    // BLEDOM brightness command: 0x7e 0x00 0x01 <perc> ... 0xef
-    const arr = new Uint8Array([0x7e,0x00,0x01, limitPerc(value), 0x00,0x00,0x00,0x00,0xef]);
-    // small debounce
-    if(brightnessDebounce) clearTimeout(brightnessDebounce);
-    brightnessDebounce = setTimeout(()=> sendCommand(arr.buffer, onSuccess), 120);
-  }
-
-  function setEffectSpeed(speed){
-    const arr = new Uint8Array([0x7e,0x00,0x02, limitPerc(speed),0x00,0x00,0x00,0x00,0xef]);
-    sendCommand(arr.buffer);
-  }
-
-  function setModeEffect(effect){
-    if(!effect) return;
-    const effectsMap = {
-      red: 0x80, blue: 0x81, green: 0x82, cyan: 0x83, yellow: 0x84,
-      magenta: 0x85, white: 0x86, jump_rgb: 0x87, jump_rgbycmw: 0x88,
-      gradient_rgb: 0x89, gradient_rgbycmw: 0x8a, blink_rgbycmw: 0x95
-    };
-    if(!(effect in effectsMap)){
-      console.warn('Unknown effect', effect);
-      return;
-    }
-    const cmd = new Uint8Array([0x7e,0x00,0x03, limitHex(effectsMap[effect]), 0x03,0x00,0x00,0x00,0xef]);
-    sendCommand(cmd.buffer);
-    // reset dynamic select visually
-    document.getElementById('dynamicSelect').value = '';
-  }
-
-  function setModeDynamic(val){
-    if(val === '' || typeof val === 'undefined' || isNaN(val)) return;
-    const cmd = new Uint8Array([0x7e,0x00,0x03, limitHex(val), 0x04,0x00,0x00,0x00,0xef]);
-    sendCommand(cmd.buffer);
-    document.getElementById('modeSelect').value = '';
-  }
-
-  /***********************
-   * UI wiring
-   ***********************/
-  // connect/disconnect handlers
-  connectBtn.addEventListener('click', () => searchBLEDom());
-  disconnectBtn.addEventListener('click', () => disconnectDevice());
-  reconnectBtn.addEventListener('click', async () => {
-    if(!bleDevice) return;
-    try{
-      await bleDevice.gatt.connect();
-      updateDeviceUI();
-      reconnectBtn.disabled = true;
-    }catch(e){ console.error(e) }
-  });
-  forgetBtn.addEventListener('click', forgetDevice);
-
-  // color controls
-  document.querySelectorAll('.color-btn').forEach(btn=>{
-    btn.addEventListener('click', () => {
-      const c = btn.dataset.color;
-      setColorHex(c);
-    });
-  });
-  document.getElementById('customColorInput').addEventListener('input', (e)=>{
-    document.getElementById('colorPreview').style.background = e.target.value;
-    document.getElementById('currentColorText').textContent = e.target.value.toUpperCase();
-  });
-  document.getElementById('applyColorBtn').addEventListener('click', () => {
-    setColorHex(document.getElementById('customColorInput').value);
-  });
-
-  // mode selects
-  document.getElementById('modeSelect').addEventListener('change', (e)=>{
-    setModeEffect(e.target.value);
-  });
-  document.getElementById('dynamicSelect').addEventListener('change', (e)=>{
-    setModeDynamic(parseInt(e.target.value));
-  });
-  document.getElementById('stopEffects').addEventListener('click', ()=>{
-    // send a simple color command to stop effects (set current color)
-    setColorHex(document.getElementById('customColorInput').value);
-  });
-
-  // brightness (sidebar) and quick brightness
-  const brightnessSlider = document.getElementById('brightnessSlider');
-  const brightnessValue = document.getElementById('brightnessValue');
-  brightnessSlider.addEventListener('input', e=>{
-    brightnessValue.textContent = e.target.value + '%';
-    setBrightness(parseInt(e.target.value));
-  });
-  document.getElementById('setFullBtn').addEventListener('click', ()=>{
-    brightnessSlider.value = 100;
-    brightnessValue.textContent = '100%';
-    setBrightness(100);
-  });
-  // quick brightness small control
-  document.getElementById('brightnessQuick').addEventListener('input', e=>{
-    const v = parseInt(e.target.value);
-    brightnessSlider.value = v;
-    brightnessValue.textContent = v + '%';
-    setBrightness(v);
-  });
-
-  // audio capture button (stub wired)
-  document.getElementById('captureAudioBtn').addEventListener('click', (e)=>{
-    // startCapture may be defined in your other scripts — call if present
-    if(typeof startCapture === 'function') startCapture(e.target);
-    else alert('startCapture() not implemented here — include your audio code.');
-  });
-
-  // keyboard enable (stub toggle)
-  document.getElementById('usekbd').addEventListener('change', (e)=>{
-    window.useKbd = !!e.target.checked;
-  });
-
-  // small visualizer (simple placeholder)
-  (function initVisualizer(){
-    const canvas = document.getElementById('visualizer');
-    const ctx = canvas.getContext('2d');
-    let t = 0;
-    function draw(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = 'rgba(30,150,255,0.06)';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height/2);
-      for(let i=0;i<canvas.width;i+=10){
-        const y = canvas.height/2 + Math.sin((i+t)/20) * (canvas.height/4);
-        ctx.lineTo(i,y);
-      }
-      ctx.strokeStyle = 'rgba(30,167,255,0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      t += 1;
-      requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-  })();
-
-  // show/hide connect vs controls initial
-  disconnectBtn.classList.add('hidden');
-  reconnectBtn.disabled = true;
-
-  // expose for console debugging
-  window._bledom = { searchBLEDom, setColor, setBrightness, setModeEffect, setModeDynamic, disconnectDevice, forgetDevice };
-
-  /***********************
-   * Safe stubs (if you use other scripts externally)
-   ***********************/
-  // Avoid errors if those scripts aren't loaded
-  if(typeof startCapture === 'undefined') window.startCapture = function(){ console.warn('startCapture() not available in this build'); };
-  if(typeof reqMidi === 'undefined') window.reqMidi = function(){ console.warn('reqMidi() not available'); };
-
-  // Update UI device name if bleDevice was set by other code
-  setInterval(()=>{ if(bleDevice) updateDeviceUI(); }, 2000);
-  </script>
-</body>
-</html>
+</body></html>

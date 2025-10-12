@@ -1,0 +1,309 @@
+:root{
+  --bg: #0f1720;
+  --card: #0b1220;
+  --accent: #1ea7ff;
+  --muted: #98a0aa;
+  --glass: rgba(255,255,255,0.03);
+  --success: #16a34a;
+
+  /* tweak how wide a preset is allowed to grow (useful for very long names) */
+  --preset-max-width: 100%;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Roboto", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg,#071021 0%, #07172a 60%);
+  color: #e6eef6;
+}
+
+.wrap {
+  /* allow the UI to expand closer to screen edges while keeping some padding */
+  max-width: 1400px;
+  width: calc(100% - 48px);
+  margin: 18px auto;
+  padding: 18px;
+}
+
+header { display:flex; align-items:center; gap:16px; margin-bottom:18px; }
+h1 { margin:0; font-weight:500; font-size:20px; }
+.brand-sub { color: var(--muted); font-size:13px; }
+
+.topbar { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
+.status {
+  padding:10px 14px;
+  border-radius:10px;
+  background: var(--glass);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.deviceName { font-weight:600; }
+.small-muted { font-size:13px; color:var(--muted); }
+
+/* Buttons */
+.btn {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background: linear-gradient(180deg,var(--accent),#128fd1);
+  border: none;
+  color: #021124;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:500;
+  box-shadow:0 4px 14px rgba(30,167,255,0.15);
+}
+.btn.ghost {
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.05);
+  color: var(--muted);
+  box-shadow:none;
+}
+.btn.warn { background:#ff7a59; color:#100b05; }
+
+/* Layout grid */
+.grid { display:grid; grid-template-columns: 1fr 320px; gap:18px; align-items:start; }
+
+/* Top-row: connection / power / connection-management
+   - Default: stack vertically (single column) so the two cards live in one column
+   - On wide screens (min-width: 900px): switch to two equal columns
+   This ensures the UI looks good on narrow/normal windows and becomes two-column on large screens */
+.grid-top-row {
+  display: grid;
+  grid-template-columns: 1fr; /* stack by default */
+  gap: 12px;
+  align-items: stretch;
+}
+
+/* ensure children of the top row stretch to equal height when in grid mode */
+.grid-top-row > * { display:flex; flex-direction:column; }
+.grid-top-row .card { flex:1; }
+
+/* On wider screens show two columns for the top row */
+@media (min-width:900px) {
+  .grid-top-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* Keep the main .grid responsive: collapse right sidebar under main column on small screens */
+@media (max-width:900px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* For medium screens, slightly reduce right column width to avoid overflow */
+@media (max-width:1100px) and (min-width:901px) {
+  .grid-top-row { grid-template-columns: 1fr 300px; }
+}
+
+/* Make cards fill their grid area edge-to-edge so preset grids can expand */
+.grid > div, .grid > aside { width: 100%; }
+
+/* Cards */
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:12px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.section-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; }
+
+/* allow title content to wrap instead of forcing overflow */
+.section-title > strong { white-space:normal; word-break:break-word; font-size:15px; }
+.section-title .muted { white-space:nowrap; color:var(--muted); }
+
+/* align action area in header so buttons don't push into other content */
+.section-title > div { display:flex; gap:8px; align-items:center; }
+.controls-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.color-btn {
+  width:46px; height:34px; border-radius:8px; border:none; cursor:pointer;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+.color-btn:focus { outline:2px solid rgba(30,167,255,0.18); }
+.color-preview { width:46px; height:34px; border-radius:6px; border:1px solid rgba(0,0,0,0.25); }
+label.small { font-size:13px; color:var(--muted); margin-right:8px; }
+select, input[type=range] { width:100%; margin-top:6px; margin-bottom:8px; }
+.meta-row { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:8px; }
+.muted { color:var(--muted); font-size:13px; }
+.footer-note { font-size:12px; color:var(--muted); margin-top:12px; }
+.collapsible { cursor:pointer; padding:6px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.02); }
+.hidden { display:none; }
+
+/* ---------------------------
+   Preset sections & lists
+   --------------------------- */
+
+.preset-section {
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px dashed rgba(255,255,255,0.02);
+}
+.preset-section:last-child { border-bottom:none; }
+
+.preset-section-title {
+  font-weight:600;
+  color:var(--muted);
+  font-size:13px;
+  margin:6px 0 0 6px;
+  min-width:72px;
+  max-width:120px;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  text-orientation:mixed;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 0;
+}
+
+/* When screen is narrow, make titles horizontal */
+@media (max-width:700px) {
+  .preset-section { flex-direction:column; }
+  .preset-section-title {
+    writing-mode:horizontal-tb;
+    transform:none;
+    min-width:auto;
+    max-width:100%;
+    margin:0 0 6px 0;
+  }
+}
+
+/* ---------------------------
+   Preset grid (default = 4 equal columns)
+   --------------------------- */
+
+.preset-grid {
+  display: grid;
+  /* Fill remaining space in the preset-section (title + grid are flex items) */
+  flex: 1 1 auto;
+  min-width: 0; /* allow flex child to shrink correctly */
+  /* fill the available space with as many columns as fit, shrinking with screen size
+     reduce min column so 4-5 columns can fit on wide screens */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin: 8px 0;
+  padding: 8px;
+  background: var(--glass);
+  border-radius:10px;
+  box-shadow: 0 2px 12px rgba(30,167,255,0.04);
+}
+
+/* Standard preset button (card-like) */
+.preset-btn {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+  transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  width:100%;
+  box-sizing: border-box;
+  text-align:left;
+  min-height:48px;
+  /* allow label area to wrap internally (we control overflow via the label wrapper) */
+}
+.preset-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+.preset-btn.active { outline: 2px solid rgba(255,255,255,0.06); }
+
+/* small preview circle */
+.preset-preview-bubble {
+  width:28px; height:28px; border-radius:50%;
+  border:2px solid rgba(0,0,0,0.25);
+  flex:0 0 28px;
+}
+
+/* label styling */
+.preset-btn span { font-weight:500; color:#e8eef6; }
+
+/* Scrolling label wrapper: hides overflow and provides a track to animate */
+.preset-label {
+  overflow: hidden;
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0; /* allow flex child to shrink */
+  display: flex;
+  align-items: center;
+}
+.preset-label-track {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+}
+.preset-label-text {
+  display: inline-block;
+  padding-right: 28px; /* gap between repeated copies for marquee */
+  font-weight:500;
+  color:#e8eef6;
+}
+
+/* Only animate when the button is hovered and the label actually needs scrolling */
+.preset-label.needs-scroll .preset-label-track { transform: translateX(0); }
+.preset-btn:hover .preset-label.needs-scroll .preset-label-track {
+  animation: preset-scroll linear infinite;
+  animation-duration: var(--preset-scroll-duration, 6s);
+}
+
+@keyframes preset-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-1 * var(--preset-scroll-distance, 100px))); }
+}
+
+/* swatches (if used) */
+.preset-btn .swatches { display:inline-flex; gap:4px; align-items:center; }
+.preset-btn .swatches span {
+  display:inline-block;
+  width:14px; height:14px; border-radius:3px; border:1px solid rgba(0,0,0,0.2);
+}
+
+/* ---------------------------
+   Variable-width options
+   --------------------------- */
+
+/* Grid-based variable columns sized to content (autosize by label length) 
+   Use by adding "variable" class: <div class="preset-grid variable"> */
+.preset-grid.variable {
+  grid-template-columns: repeat(auto-fill, max-content);
+  justify-content: start;        /* pack left */
+}
+.preset-grid.variable .preset-btn {
+  width: auto;                   /* let the button size to its content */
+  min-width: max-content;        /* ensure full label visible */
+  max-width: var(--preset-max-width);
+}
+
+/* Flexbox variable option: buttons size to content and wrap naturally
+   Use by adding "flex-variable": <div class="preset-grid flex-variable"> */
+.preset-grid.flex-variable {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  gap:12px;
+  padding:8px;
+}
+.preset-grid.flex-variable .preset-btn {
+  width:auto;
+  flex: 0 0 auto;               /* size to content, do not stretch */
+  min-width: max-content;
+  max-width: var(--preset-max-width);
+}
+
+/* ---------------------------
+   Responsive fallback
+   --------------------------- */
+@media (max-width:900px) {
+  .preset-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width:600px) {
+  .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width:380px) {
+  .preset-grid { grid-template-columns: 1fr; }
+}

@@ -78,6 +78,20 @@ function sendCommand(command, onSuccess) {
 }
 
 // Color & effect helpers
+// Power on/off command
+function setPower(on) {
+    const cmd = new Uint8Array([0x7e, 0x00, 0x04, on ? 0x01 : 0x00, 0x00, 0x00, 0x00, 0x00, 0xef]);
+    sendCommand(cmd.buffer);
+}
+// Turn off the LEDs
+function off() {
+    setColor(0, 0, 0);
+}
+
+// Turn on the LEDs (restore last color)
+function on() {
+    setColor(rgbColor.r, rgbColor.g, rgbColor.b);
+}
 function setColor(r, g, b, onSuccess) {
     if (document.getElementById("customColorInput"))
         document.getElementById("customColorInput").value = rgbToHex(r, g, b);
@@ -109,28 +123,52 @@ function setEffectSpeed(speed) {
     sendCommand(command);
 }
 
-function setModeEffect(effect) {
-    const effects = {
-        red: 0x80, blue: 0x81, green: 0x82, cyan: 0x83, yellow: 0x84,
-        magenta: 0x85, white: 0x86, jump_rgb: 0x87, jump_rgbycmw: 0x88,
-        gradient_rgb: 0x89, gradient_rgbycmw: 0x8a, gradient_r: 0x8b, gradient_g: 0x8c,
-        gradient_b: 0x8d, gradient_y: 0x8e, gradient_c: 0x8f, gradient_m: 0x90,
-        gradient_w: 0x91, gradient_rg: 0x92, gradient_rb: 0x93, gradient_gb: 0x94,
-        blink_rgbycmw: 0x95, blink_r: 0x96, blink_g: 0x97, blink_b: 0x98,
-        blink_y: 0x99, blink_c: 0x9a, blink_m: 0x9b, blink_w: 0x9c
-    };
+// --- Full pattern list ---
+const patternData = [
+    "Static Red", "Static Blue", "Static Green", "Static Cyan", "Static Yellow",
+    "Static Purple", "Static White", "Three Color Jumping Change", "Seven Color Jumping Change",
+    "Three Color Cross Fade", "Seven Color Cross Fade", "Red Gradual Change",
+    "Green Gradual Change", "Blue Gradual Change", "Yellow Gradual Change",
+    "Cyan Gradual Change", "Purple Gradual Change", "White Gradual Change",
+    "Red Green Cross Fade", "Red Blue Cross Fade", "Green Blue Cross Fade",
+    "Seven color Strobe Flash", "Red Strobe Flash", "Green Strobe Flash",
+    "Blue Strobe Flash", "Yellow Strobe Flash", "Cyan Strobe Flash",
+    "Purple Strobe Flash", "White Strobe Flash"
+];
 
-    if (!(effect in effects)) {
-        console.warn(`${effect} is not a valid effect`);
+const patternCodes = {
+    "Static Red": 0x80, "Static Blue": 0x81, "Static Green": 0x82, "Static Cyan": 0x83,
+    "Static Yellow": 0x84, "Static Purple": 0x85, "Static White": 0x86,
+    "Three Color Jumping Change": 0x87, "Seven Color Jumping Change": 0x88,
+    "Three Color Cross Fade": 0x89, "Seven Color Cross Fade": 0x8a,
+    "Red Gradual Change": 0x8b, "Green Gradual Change": 0x8c, "Blue Gradual Change": 0x8d,
+    "Yellow Gradual Change": 0x8e, "Cyan Gradual Change": 0x8f, "Purple Gradual Change": 0x90,
+    "White Gradual Change": 0x91, "Red Green Cross Fade": 0x92,
+    "Red Blue Cross Fade": 0x93, "Green Blue Cross Fade": 0x94,
+    "Seven color Strobe Flash": 0x95, "Red Strobe Flash": 0x96,
+    "Green Strobe Flash": 0x97, "Blue Strobe Flash": 0x98,
+    "Yellow Strobe Flash": 0x99, "Cyan Strobe Flash": 0x9a,
+    "Purple Strobe Flash": 0x9b, "White Strobe Flash": 0x9c
+};
+
+// Updated function to set effect by pattern name
+function setModeEffectByName(effectName) {
+    if (!(effectName in patternCodes)) {
+        console.warn(`${effectName} is not a valid pattern`);
         return;
     }
 
-    const command = new Uint8Array([0x7e, 0x00, 0x03, limitHex(effects[effect]), 0x03, 0x00, 0x00, 0x00, 0xef]).buffer;
+    const command = new Uint8Array([
+        0x7e, 0x00, 0x03, limitHex(patternCodes[effectName]),
+        0x03, 0x00, 0x00, 0x00, 0xef
+    ]).buffer;
+
     sendCommand(command);
 
     if (document.getElementById("dynamicSelect")) document.getElementById("dynamicSelect").value = "null";
 }
 
+// Keep your existing dynamic & sensitivity functions
 function setModeDynamic(dynamic) {
     const command = new Uint8Array([0x7e, 0x00, 0x03, limitHex(dynamic), 0x04, 0x00, 0x00, 0x00, 0xef]).buffer;
     sendCommand(command);
