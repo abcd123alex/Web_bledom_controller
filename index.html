@@ -207,32 +207,6 @@
           </div>
         </div>
 
-        <!-- Keyboard / MIDI -->
-        <div class="card">
-          <div class="section-title">
-            <strong>Keyboard &amp; MIDI (BROKEN ATM)</strong>
-            <div class="muted">Play colors with keys or MIDI</div>
-          </div>
-
-          <div>
-            <label><input id="usekbd" type="checkbox"> Enable keyboard control</label>
-            <div style="margin-top:8px">
-              <label class="small">Attack</label>
-              <input id="attack" type="range" min="0" max="10" step="0.01" value="0">
-              <label class="small">Release</label>
-              <input id="release" type="range" min="0" max="4" step="0.01" value="0.25">
-              <label class="small">Brightness (quick)</label>
-              <input id="brightnessQuick" type="range" min="0" max="100" step="1" value="100">
-            </div>
-
-            <div style="margin-top:10px">
-              <button class="btn ghost" id="midiBtn" style="display:none">Use MIDI keyboard</button>
-              <label style="margin-left:8px"><input id="useMidiRelease" type="checkbox"> Use MIDI release</label>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Right sidebar -->
       <aside>
         
@@ -241,7 +215,6 @@
   </div>
 
   <script src="main.js"></script>
-  <script src="kbd.js"></script>
   <script src="input.js"></script>
 
 <script>
@@ -249,15 +222,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     const captureBtn = document.getElementById("captureAudioBtn");
     captureBtn?.addEventListener("click", () => startCapture(captureBtn));
-
-    // Keyboard toggle
-    const useKbdBox = document.getElementById("usekbd");
-    if (useKbdBox) {
-      useKbdBox.addEventListener("change", e => {
-        useKbd = e.target.checked;
-        console.log("Keyboard control:", useKbd);
-      });
-    }
   });
 </script>
 
