@@ -13,10 +13,15 @@ Supports:
 * More modern UI
 
 Need to fix:
-* Power Controls <- Real off cmd, not rgb(0,0,0)
+* Power Controls <- Real off cmd, add rgb(0,0,0) for unsupported
+
 (How tf did I break these)
 * Audio control via screenshare
-* Keyboard control & MIDI control + popup
+^ add stop sharing/control button due to brightness getting messed up
+
+Notes:
+* Removed Keyboard control due to focus on tab
+* Removed Midi control due to unable to test
 
 ------
 
