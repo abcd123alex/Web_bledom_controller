@@ -15,36 +15,41 @@ function onDisconnected(event) {
 }
 
 var char = null;
-function searchBLEDom() {
-	navigator.bluetooth.requestDevice({
- 	 acceptAllDevices: true,
- 	 optionalServices: ['0000fff0-0000-1000-8000-00805f9b34fb']
-	})
 
-	}).then(function(device) {
-		console.log(device);
-		device.addEventListener('gattserverdisconnected', onDisconnected);
-		return device.gatt.connect();
-	}).then(function(server) {
-		console.log(server);
-		return server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
-	}).then(function(service) {
-		console.log(service);
-		return service.getCharacteristic('0000fff3-0000-1000-8000-00805f9b34fb');
-	}).then(function(characteristic) {
-		console.log(characteristic);
-		char = characteristic;
-		document.getElementById("searchBtn").style.display = "none";
-		document.getElementById("controls").style.display = "block";
-		setInterval(attackRelease, 75);
-		if (navigator.requestMIDIAccess) {
-			document.getElementById("midiBtn").style.display = "inline-block";
-		}
-		setColor(rgbColor.r, rgbColor.g, rgbColor.b);
-	}).catch(function(err) {
-		console.error(err);
-	});
+function searchBLEDom() {
+    navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: ['0000fff0-0000-1000-8000-00805f9b34fb']
+    })
+    .then(function(device) {
+        console.log(device);
+        device.addEventListener('gattserverdisconnected', onDisconnected);
+        return device.gatt.connect();
+    })
+    .then(function(server) {
+        console.log(server);
+        return server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
+    })
+    .then(function(service) {
+        console.log(service);
+        return service.getCharacteristic('0000fff3-0000-1000-8000-00805f9b34fb');
+    })
+    .then(function(characteristic) {
+        console.log(characteristic);
+        char = characteristic;
+        document.getElementById("searchBtn").style.display = "none";
+        document.getElementById("controls").style.display = "block";
+        setInterval(attackRelease, 75);
+        if (navigator.requestMIDIAccess) {
+            document.getElementById("midiBtn").style.display = "inline-block";
+        }
+        setColor(rgbColor.r, rgbColor.g, rgbColor.b);
+    })
+    .catch(function(err) {
+        console.error(err);
+    });
 }
+
 
 commandInProgress = false;
 function sendCommand(command, onSuccess) {
