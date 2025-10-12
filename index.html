@@ -1,113 +1,121 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8" />
-		<title>BLEDOM Controller</title>
-		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-		<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" />
-		<link rel="stylesheet" href="styles.css" />
-		<script src="useful.js"></script>
-	</head>
-	<body>
-		<div id="nosupport" style="display: none;">
-			<h1>Bluetooth is not enabled or supported by your web browser</h1>
-			<p>To enable the (experimental) Bluetooth capabilities of your web browser, go to <a href="chrome://flags" target="_blank">chrome://flags</a> and enable the <i>#experimental-web-platform-features</i> flag. Then restart your browser.</i></p>
-			<p>Also make sure to enable the new Web Permissions System, if not done already: <i>#enable-web-bluetooth-new-permissions-backend</i>.</p>
-		</div>
-		<div id="yesyes" style="display: none;">
-			<h1>BLEDOM Controller</h1>
-			<button id="searchBtn" onclick="searchBLEDom()">Connect</button>
-			<div id="controls" style="display: none;">
-				<h2>Default Controls</h2>
-				<button id="redBtn" onclick="setColor(255, 0, 0)">Red</button>
-				<button id="greenBtn" onclick="setColor(0, 255, 0)">Green</button>
-				<button id="blueBtn" onclick="setColor(0, 0, 255)">Blue</button>
-				<hr />
-				<input type="color" id="customColorInput" name="customColorInput" value="#FF0000" onchange="setColorHex(this.value)" />
-				<hr />
-				<select id="modeSelect" name="modeSelect" onchange="setModeEffect(this.value)">
-					<option value="null" selected disabled>Select an effect</option>
-					<option value="red">Red</option>
-					<option value="green">Green</option>
-					<option value="blue">Blue</option>
-					<option value="yellow">Yellow</option>
-					<option value="cyan">Cyan</option>
-					<option value="magenta">Magenta</option>
-					<option value="white">White</option>
-					<option value="jump_rgb">Jump RGB</option>
-					<option value="jump_rgbycmw">Jump RGBYCMW</option>
-					<option value="gradient_rgb">Fade RGB</option>
-					<option value="gradient_rgbycmw">Fade RGBYCMW</option>
-					<option value="gradient_r">Fade Red</option>
-					<option value="gradient_g">Fade Green</option>
-					<option value="gradient_b">Fade Blue</option>
-					<option value="gradient_y">Fade Yellow</option>
-					<option value="gradient_c">Fade Cyan</option>
-					<option value="gradient_m">Fade Magenta</option>
-					<option value="gradient_w">Fade White</option>
-					<option value="gradient_rg">Fade Red &amp; Green</option>
-					<option value="gradient_rb">Fade Red &amp; Blue</option>
-					<option value="gradient_gb">Fade Green &amp; Blue</option>
-					<option value="blink_rgbycmw">Blink RGBYCMW</option>
-					<option value="blink_r">Blink Red</option>
-					<option value="blink_g">Blink Green</option>
-					<option value="blink_b">Blink Blue</option>
-					<option value="blink_y">Blink Yellow</option>
-					<option value="blink_c">Blink Cyan</option>
-					<option value="blink_m">Blink Magenta</option>
-					<option value="blink_w">Blink White</option>
-				</select>
-				<hr />
-				<select id="dynamicSelect" name="dynamicSelect" onchange="setModeDynamic(parseInt(this.value))">
-					<option value="null" selected disabled>Select a dynamic effect</option>
-					<option value="0">Colorful Mode</option>
-					<option value="1">Beat On/Off Mode</option>
-					<option value="2">Beat Color Mode</option>
-					<option value="3">Fast Beat On/Off Mode</option>
-				</select>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BLEDOM Controller</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="useful.js"></script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background:#f5f5f5; color:#333; }
+        h1,h2 { margin:0.5em 0; }
+        .container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+        .section { margin-bottom:20px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafafa;}
+        .section h2 { cursor:pointer; user-select:none; }
+        .section.collapsed .content { display:none; }
+        .btn { padding:8px 16px; margin:5px; border:none; border-radius:5px; cursor:pointer; background:#2196f3; color:#fff; transition:0.2s; }
+        .btn:hover { background:#1976d2; }
+        input[type=color] { width:50px; height:30px; border:none; padding:0; margin:5px; vertical-align:middle; }
+        input[type=range] { width:100%; }
+        label { margin-right:10px; }
+        #status { font-weight:bold; margin-bottom:10px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="nosupport" style="display:none;">
+        <h1>Bluetooth Not Supported</h1>
+        <p>Your browser does not support Web Bluetooth. Enable experimental flags in Chrome or use Edge.</p>
+    </div>
 
-				<hr />
-				<h2>Capture System Audio</h2>
-				<button id="captureAudioBtn" onclick="startCapture(this);">Use system audio</button>
-				<br />
-				<input id="bbselect" title="Beat Bar Selection" type="range" min="0" max="12" value="0" step="1" onchange="drawer.beatBar = parseInt(this.value);">
-				<input id="lpfilter" title="Lowpass Filter" type="range" min="4" max="32" value="32" step="1" onchange="recorder.filter.frequency.value = parseInt(this.value);">
-				<input id="threshold" title="Threshold" type="range" min="0" max="128" value="100" step="1" onchange="drawer.threshold = parseInt(this.value);">
-				<input id="baramount" title="Amount of bars to take into account" type="range" min="1" max="32" value="8" step="1" onchange="drawer.bars = parseInt(this.value);">
-				<br />
-				<button id="filterresetbtn" onclick="resetFilters();">Reset filters</button>
-				<canvas id="visualizer"></canvas>
-				<hr />
+    <div class="container" id="yesyes" style="display:none;">
+        <h1>BLEDOM Controller</h1>
+        <div id="status">Device: <span id="deviceName">Not connected</span></div>
+        <button class="btn" id="searchBtn" onclick="searchBLEDom()">Connect Device</button>
 
-				<h2>Pre-defined Controls</h2>
-				<input type="checkbox" id="automaticcontrol" value="true" onchange="autoControl = this.checked; autoLooper();" /> <label for="automaticcontrol">Enabled</label><br />
-				<input type="number" min="1" max="200" step="1" id="bpm" value="138" placeholder="BPM" onkeydown="if(event.key==='.'){event.preventDefault();}" oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,''); setBPM(parseInt(this.value));" /><br />
-				<select id="autotype" name="autotype" onchange="setAutoType(parseInt(this.value))">
-					<option value="null" selected disabled>Select automatic effect</option>
-					<option value="0">Test</option>
-				</select>
-				<hr />
+        <!-- Default Colors Section -->
+        <div class="section">
+            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Default Colors</h2>
+            <div class="content">
+                <button class="btn" onclick="setColor(255,0,0)">Red</button>
+                <button class="btn" onclick="setColor(0,255,0)">Green</button>
+                <button class="btn" onclick="setColor(0,0,255)">Blue</button>
+                <input type="color" id="customColorInput" value="#ff0000" onchange="setColorHex(this.value)" title="Pick custom color">
+                <div id="colorPreview" style="width:30px;height:30px;display:inline-block;margin-left:10px;background:#ff0000;border:1px solid #ccc;"></div>
+            </div>
+        </div>
 
-				<h2>Keyboard Control Options</h2>
-				<input type="checkbox" id="usekbd" value="true" onchange="useKbd = this.checked" /> <label for="usekbd">Enabled</label><br />
-				<input type="range" id="attack" value="0" step="0.01" min="0" max="10" title="Attack" />
-				<input type="range" id="release" value="0.25" step="0.01" min="0" max="4" title="Release" />
-				<input type="range" id="brightness" value="100" step="5" min="0" max="100" title="Brightness" onchange="setBrightness(parseInt(this.value))" onclick="setBrightness(parseInt(this.value))" />
-				<br />
-				<input type="checkbox" id="singleColorEnvelope" value="true" onchange="onlyOneKey = this.checked"/> <label for="singleColorEnvelope">Immediate color transition</label>
-				<br />
-				<button id="midiBtn" onclick="reqMidi();" style="display: none;">Use MIDI keyboard</button>
-				<input type="checkbox" id="useMidiRelease" value="true" onchange="useMidiRelease = this.checked"/> <label for="useMidiRelease">Use MIDI release</label>
-			</div>
-		</div>
-		<noscript>
-			<h1>Javascript is required for this webpage to work.</h1>
-			<p>Please enable Javascript in your browser, then reload the page.</p>
-		</noscript>
-		<script src="bt.js"></script>
-		<script src="midi.js"></script>
-		<script src="kbd.js"></script>
-		<script src="auto.js"></script>
-		<script src="input.js"></script>
-	</body>
+        <!-- Effects Section -->
+        <div class="section">
+            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Effects</h2>
+            <div class="content">
+                <select id="modeSelect" onchange="setModeEffect(this.value)">
+                    <option value="null" disabled selected>Select effect</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                    <option value="jump_rgb">Jump RGB</option>
+                    <option value="gradient_rgb">Fade RGB</option>
+                    <option value="blink_rgbycmw">Blink RGBYCMW</option>
+                </select>
+                <select id="dynamicSelect" onchange="setModeDynamic(parseInt(this.value))">
+                    <option value="null" disabled selected>Select dynamic effect</option>
+                    <option value="0">Colorful Mode</option>
+                    <option value="1">Beat On/Off Mode</option>
+                    <option value="2">Beat Color Mode</option>
+                    <option value="3">Fast Beat On/Off Mode</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Audio Capture Section -->
+        <div class="section">
+            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Audio Capture</h2>
+            <div class="content">
+                <button class="btn" onclick="startCapture(this)">Use System Audio</button>
+                <label>Beat Bar</label><input type="range" id="bbselect" min="0" max="12" value="0">
+                <label>Lowpass Filter</label><input type="range" id="lpfilter" min="4" max="32" value="32">
+                <label>Threshold</label><input type="range" id="threshold" min="0" max="128" value="100">
+                <label>Bars</label><input type="range" id="baramount" min="1" max="32" value="8">
+                <button class="btn" onclick="resetFilters()">Reset Filters</button>
+                <canvas id="visualizer" style="width:100%; height:100px; background:#000; margin-top:10px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Keyboard Controls -->
+        <div class="section">
+            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Keyboard & MIDI</h2>
+            <div class="content">
+                <label><input type="checkbox" id="usekbd" onchange="useKbd=this.checked"> Enable Keyboard Control</label>
+                <br>
+                <label>Attack</label><input type="range" id="attack" min="0" max="10" step="0.01">
+                <label>Release</label><input type="range" id="release" min="0" max="4" step="0.01">
+                <label>Brightness</label><input type="range" id="brightness" min="0" max="100" step="5" onchange="setBrightness(parseInt(this.value))">
+                <br>
+                <label><input type="checkbox" id="singleColorEnvelope" onchange="onlyOneKey=this.checked"> Immediate color transition</label>
+                <br>
+                <button class="btn" id="midiBtn" style="display:none" onclick="reqMidi()">Use MIDI Keyboard</button>
+                <label><input type="checkbox" id="useMidiRelease" onchange="useMidiRelease=this.checked"> Use MIDI Release</label>
+            </div>
+        </div>
+    </div>
+
+    <noscript>
+        <h1>Javascript is required for this webpage to work.</h1>
+        <p>Please enable Javascript in your browser and reload the page.</p>
+    </noscript>
+
+    <script src="bt.js"></script>
+    <script src="midi.js"></script>
+    <script src="kbd.js"></script>
+    <script src="auto.js"></script>
+    <script src="input.js"></script>
+
+    <script>
+        // Live color preview
+        const colorInput = document.getElementById('customColorInput');
+        const preview = document.getElementById('colorPreview');
+        colorInput.addEventListener('input', e => preview.style.backgroundColor = e.target.value);
+    </script>
+</body>
 </html>
