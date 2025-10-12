@@ -1,121 +1,569 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>BLEDOM Controller</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="useful.js"></script>
-    <style>
-        body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background:#f5f5f5; color:#333; }
-        h1,h2 { margin:0.5em 0; }
-        .container { max-width:900px; margin:20px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15);}
-        .section { margin-bottom:20px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafafa;}
-        .section h2 { cursor:pointer; user-select:none; }
-        .section.collapsed .content { display:none; }
-        .btn { padding:8px 16px; margin:5px; border:none; border-radius:5px; cursor:pointer; background:#2196f3; color:#fff; transition:0.2s; }
-        .btn:hover { background:#1976d2; }
-        input[type=color] { width:50px; height:30px; border:none; padding:0; margin:5px; vertical-align:middle; }
-        input[type=range] { width:100%; }
-        label { margin-right:10px; }
-        #status { font-weight:bold; margin-bottom:10px; }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BLEDOM Controller — Improved UI</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#0f1720;
+    --card:#0b1220;
+    --accent:#1ea7ff;
+    --muted:#98a0aa;
+    --glass: rgba(255,255,255,0.03);
+    --success:#16a34a;
+  }
+  html,body{height:100%;margin:0;font-family:"Roboto",system-ui,Segoe UI,Roboto,Arial; background:
+    linear-gradient(180deg,#071021 0%, #07172a 60%); color:#e6eef6}
+  .wrap{max-width:1000px;margin:28px auto;padding:20px;}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  h1{margin:0;font-weight:500;font-size:20px}
+  .brand-sub{color:var(--muted);font-size:13px}
+
+  .topbar{
+    display:flex;gap:12px;align-items:center;margin-bottom:18px;
+  }
+  .status{
+    padding:10px 14px;border-radius:10px;background:var(--glass);
+    display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,0.03);
+  }
+  .deviceName{font-weight:600}
+  .small-muted{font-size:13px;color:var(--muted)}
+
+  .btn {
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(180deg,var(--accent),#128fd1);
+    border:none;color:#021124;padding:8px 12px;border-radius:8px;
+    cursor:pointer;font-weight:500;box-shadow:0 4px 14px rgba(30,167,255,0.15);
+  }
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);box-shadow:none}
+  .btn.warn{background:#ff7a59;color:#100b05}
+  .grid{display:grid;grid-template-columns: 1fr 340px; gap:18px;align-items:start}
+  @media (max-width:900px){ .grid{grid-template-columns: 1fr} }
+
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+       border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03)}
+  .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .controls-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .color-btn{width:46px;height:34px;border-radius:8px;border:none;cursor:pointer}
+  .color-preview{width:46px;height:34px;border-radius:6px;border:1px solid rgba(0,0,0,0.25)}
+  label.small{font-size:13px;color:var(--muted);margin-right:8px}
+
+  select,input[type=range]{width:100%;margin-top:6px;margin-bottom:8px}
+  .meta-row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:8px}
+  .muted{color:var(--muted);font-size:13px}
+  .footer-note{font-size:12px;color:var(--muted);margin-top:12px}
+
+  /* collapsible */
+  .collapsible{cursor:pointer;padding:6px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02)}
+  .hidden{display:none}
+</style>
 </head>
 <body>
-    <div class="container" id="nosupport" style="display:none;">
-        <h1>Bluetooth Not Supported</h1>
-        <p>Your browser does not support Web Bluetooth. Enable experimental flags in Chrome or use Edge.</p>
-    </div>
-
-    <div class="container" id="yesyes" style="display:none;">
+  <div class="wrap">
+    <header>
+      <div>
         <h1>BLEDOM Controller</h1>
-        <div id="status">Device: <span id="deviceName">Not connected</span></div>
-        <button class="btn" id="searchBtn" onclick="searchBLEDom()">Connect Device</button>
+        <div class="brand-sub">Clean UI • Live brightness • Auto-safe BLE writes</div>
+      </div>
+    </header>
 
-        <!-- Default Colors Section -->
-        <div class="section">
-            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Default Colors</h2>
-            <div class="content">
-                <button class="btn" onclick="setColor(255,0,0)">Red</button>
-                <button class="btn" onclick="setColor(0,255,0)">Green</button>
-                <button class="btn" onclick="setColor(0,0,255)">Blue</button>
-                <input type="color" id="customColorInput" value="#ff0000" onchange="setColorHex(this.value)" title="Pick custom color">
-                <div id="colorPreview" style="width:30px;height:30px;display:inline-block;margin-left:10px;background:#ff0000;border:1px solid #ccc;"></div>
-            </div>
+    <div class="topbar">
+      <div class="status card" id="statusPanel">
+        <div>
+          <div class="small-muted">Device</div>
+          <div class="deviceName" id="deviceName">Not connected</div>
         </div>
+        <div style="margin-left:12px" id="statusControls">
+          <button class="btn" id="connectBtn">Connect</button>
+          <button class="btn ghost hidden" id="disconnectBtn">Disconnect</button>
+        </div>
+      </div>
 
-        <!-- Effects Section -->
-        <div class="section">
-            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Effects</h2>
-            <div class="content">
-                <select id="modeSelect" onchange="setModeEffect(this.value)">
-                    <option value="null" disabled selected>Select effect</option>
-                    <option value="red">Red</option>
-                    <option value="green">Green</option>
-                    <option value="blue">Blue</option>
-                    <option value="jump_rgb">Jump RGB</option>
-                    <option value="gradient_rgb">Fade RGB</option>
-                    <option value="blink_rgbycmw">Blink RGBYCMW</option>
-                </select>
-                <select id="dynamicSelect" onchange="setModeDynamic(parseInt(this.value))">
-                    <option value="null" disabled selected>Select dynamic effect</option>
-                    <option value="0">Colorful Mode</option>
-                    <option value="1">Beat On/Off Mode</option>
-                    <option value="2">Beat Color Mode</option>
-                    <option value="3">Fast Beat On/Off Mode</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Audio Capture Section -->
-        <div class="section">
-            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Audio Capture</h2>
-            <div class="content">
-                <button class="btn" onclick="startCapture(this)">Use System Audio</button>
-                <label>Beat Bar</label><input type="range" id="bbselect" min="0" max="12" value="0">
-                <label>Lowpass Filter</label><input type="range" id="lpfilter" min="4" max="32" value="32">
-                <label>Threshold</label><input type="range" id="threshold" min="0" max="128" value="100">
-                <label>Bars</label><input type="range" id="baramount" min="1" max="32" value="8">
-                <button class="btn" onclick="resetFilters()">Reset Filters</button>
-                <canvas id="visualizer" style="width:100%; height:100px; background:#000; margin-top:10px;"></canvas>
-            </div>
-        </div>
-
-        <!-- Keyboard Controls -->
-        <div class="section">
-            <h2 onclick="this.parentNode.classList.toggle('collapsed')">Keyboard & MIDI</h2>
-            <div class="content">
-                <label><input type="checkbox" id="usekbd" onchange="useKbd=this.checked"> Enable Keyboard Control</label>
-                <br>
-                <label>Attack</label><input type="range" id="attack" min="0" max="10" step="0.01">
-                <label>Release</label><input type="range" id="release" min="0" max="4" step="0.01">
-                <label>Brightness</label><input type="range" id="brightness" min="0" max="100" step="5" onchange="setBrightness(parseInt(this.value))">
-                <br>
-                <label><input type="checkbox" id="singleColorEnvelope" onchange="onlyOneKey=this.checked"> Immediate color transition</label>
-                <br>
-                <button class="btn" id="midiBtn" style="display:none" onclick="reqMidi()">Use MIDI Keyboard</button>
-                <label><input type="checkbox" id="useMidiRelease" onchange="useMidiRelease=this.checked"> Use MIDI Release</label>
-            </div>
-        </div>
+      <div style="margin-left:auto" class="small-muted">
+        <div id="supportMsg">Checking browser support...</div>
+      </div>
     </div>
 
-    <noscript>
-        <h1>Javascript is required for this webpage to work.</h1>
-        <p>Please enable Javascript in your browser and reload the page.</p>
-    </noscript>
+    <div class="grid">
+      <!-- Left main column -->
+      <div>
+        <!-- Default Colors -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Default Colors</strong>
+            <div class="muted">Quick presets</div>
+          </div>
 
-    <script src="bt.js"></script>
-    <script src="midi.js"></script>
-    <script src="kbd.js"></script>
-    <script src="auto.js"></script>
-    <script src="input.js"></script>
+          <div class="controls-row" style="margin-bottom:10px">
+            <button class="color-btn" style="background:#ff3b30" title="Red" data-color="#ff3b30"></button>
+            <button class="color-btn" style="background:#34c759" title="Green" data-color="#34c759"></button>
+            <button class="color-btn" style="background:#007aff" title="Blue" data-color="#007aff"></button>
+            <button class="color-btn" style="background:#ffd60a" title="Yellow" data-color="#ffd60a"></button>
+            <button class="color-btn" style="background:#00c7c7" title="Cyan" data-color="#00c7c7"></button>
+            <button class="color-btn" style="background:#ff2d55" title="Magenta" data-color="#ff2d55"></button>
 
-    <script>
-        // Live color preview
-        const colorInput = document.getElementById('customColorInput');
-        const preview = document.getElementById('colorPreview');
-        colorInput.addEventListener('input', e => preview.style.backgroundColor = e.target.value);
-    </script>
+            <div style="flex:1"></div>
+
+            <input id="customColorInput" type="color" value="#ff0000" style="height:36px;border-radius:8px;border:none">
+            <div class="color-preview" id="colorPreview" style="background:#ff0000"></div>
+          </div>
+
+          <div class="meta-row">
+            <div class="muted">Current color: <span id="currentColorText">#FF0000</span></div>
+            <div>
+              <button class="btn ghost" id="applyColorBtn">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Effects -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Effects & Modes</strong>
+            <div class="muted">Select effect or dynamic mode</div>
+          </div>
+
+          <div>
+            <label class="small">Preset effect</label>
+            <select id="modeSelect">
+              <option value="" selected disabled>Choose effect</option>
+              <option value="red">Red</option>
+              <option value="green">Green</option>
+              <option value="blue">Blue</option>
+              <option value="jump_rgb">Jump (RGB)</option>
+              <option value="gradient_rgb">Fade (RGB)</option>
+              <option value="blink_rgbycmw">Blink (RGBYCMW)</option>
+            </select>
+
+            <label class="small">Dynamic mode</label>
+            <select id="dynamicSelect">
+              <option value="" selected disabled>Choose dynamic</option>
+              <option value="0">Colorful Mode</option>
+              <option value="1">Beat On/Off</option>
+              <option value="2">Beat Color Mode</option>
+              <option value="3">Fast Beat</option>
+            </select>
+          </div>
+
+          <div class="meta-row">
+            <div class="muted">Use effect / dynamic to control LEDs</div>
+            <div><button class="btn ghost" id="stopEffects">Stop</button></div>
+          </div>
+        </div>
+
+        <!-- Audio Capture -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Audio capture (optional)</strong>
+            <div class="muted">Use system audio to drive effects</div>
+          </div>
+
+          <div>
+            <button class="btn" id="captureAudioBtn">Use System Audio</button>
+            <div style="margin-top:10px">
+              <label class="small">Beat bar</label>
+              <input id="bbselect" type="range" min="0" max="12" step="1" value="0">
+              <label class="small">Lowpass</label>
+              <input id="lpfilter" type="range" min="4" max="32" step="1" value="32">
+              <label class="small">Threshold</label>
+              <input id="threshold" type="range" min="0" max="128" step="1" value="100">
+            </div>
+
+            <canvas id="visualizer" width="800" height="120" style="width:100%;height:90px;background:#05060a;border-radius:8px;margin-top:10px"></canvas>
+          </div>
+        </div>
+
+        <!-- Keyboard / MIDI -->
+        <div class="card">
+          <div class="section-title">
+            <strong>Keyboard & MIDI</strong>
+            <div class="muted">Play colors with keys or MIDI</div>
+          </div>
+
+          <div>
+            <label><input id="usekbd" type="checkbox"> Enable keyboard control</label>
+            <div style="margin-top:8px">
+              <label class="small">Attack</label>
+              <input id="attack" type="range" min="0" max="10" step="0.01" value="0">
+              <label class="small">Release</label>
+              <input id="release" type="range" min="0" max="4" step="0.01" value="0.25">
+              <label class="small">Brightness (quick)</label>
+              <input id="brightnessQuick" type="range" min="0" max="100" step="1" value="100">
+            </div>
+
+            <div style="margin-top:10px">
+              <button class="btn ghost" id="midiBtn" style="display:none">Use MIDI keyboard</button>
+              <label style="margin-left:8px"><input id="useMidiRelease" type="checkbox"> Use MIDI release</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right sidebar -->
+      <aside>
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Brightness</strong>
+            <div class="muted">Fine control</div>
+          </div>
+
+          <div>
+            <label class="small">Brightness</label>
+            <input id="brightnessSlider" type="range" min="0" max="100" step="1" value="100">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <div class="muted">Current: <span id="brightnessValue">100%</span></div>
+              <div><button class="btn ghost" id="setFullBtn">100%</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <strong>Connection</strong>
+            <div class="muted">Manage device</div>
+          </div>
+
+          <div>
+            <div class="muted">Selected Device:</div>
+            <div style="font-weight:600" id="selectedDevice">—</div>
+            <div style="margin-top:10px">
+              <button class="btn" id="reconnectBtn" disabled>Reconnect</button>
+              <button class="btn ghost" id="forgetBtn">Forget</button>
+            </div>
+            <div class="footer-note">Tip: use "Connect" then choose your device from the browser picker.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+  </div>
+
+  <script>
+  /***********************
+   * Helper utilities
+   ***********************/
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v|0));
+  function limitHex(v){ return clamp(v, 0, 255); }
+  function limitPerc(v){ return clamp(v, 0, 100); }
+  function rgbToHex(r,g,b){
+    const to2 = n => ('0'+(n|0).toString(16)).slice(-2);
+    return ('#'+to2(r)+to2(g)+to2(b)).toUpperCase();
+  }
+  function hexToRgb(hex){
+    if(!hex) return {r:0,g:0,b:0};
+    hex = hex.replace('#','');
+    if(hex.length === 3) hex = hex.split('').map(s=>s+s).join('');
+    return { r: parseInt(hex.substr(0,2),16), g: parseInt(hex.substr(2,2),16), b: parseInt(hex.substr(4,2),16) };
+  }
+
+  /***********************
+   * BLE + device state
+   ***********************/
+  let bleDevice = null;
+  let char = null;
+  let commandInProgress = false;
+  let deviceNameEl = document.getElementById('deviceName');
+  let selectedDeviceEl = document.getElementById('selectedDevice');
+
+  // UI elements
+  const connectBtn = document.getElementById('connectBtn');
+  const disconnectBtn = document.getElementById('disconnectBtn');
+  const reconnectBtn = document.getElementById('reconnectBtn');
+  const forgetBtn = document.getElementById('forgetBtn');
+
+  // browser support check
+  const supportMsg = document.getElementById('supportMsg');
+  if('bluetooth' in navigator && 'permissions' in navigator){
+    supportMsg.textContent = 'Web Bluetooth supported';
+    document.getElementById('yesyes').style.display = 'block';
+  } else {
+    supportMsg.textContent = 'Web Bluetooth NOT supported. Use Chrome/Edge on desktop or Android.';
+    document.getElementById('nosupport')?.style.display = 'block';
+  }
+
+  /***********************
+   * BLE functions
+   ***********************/
+  async function searchBLEDom(){
+    try {
+      connectBtn.disabled = true;
+      connectBtn.textContent = 'Picking...';
+
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: ['0000fff0-0000-1000-8000-00805f9b34fb']
+      });
+
+      // Save selected device
+      bleDevice = device;
+      updateDeviceUI();
+
+      device.addEventListener('gattserverdisconnected', onDisconnected);
+
+      connectBtn.textContent = 'Connecting...';
+
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');
+      char = await service.getCharacteristic('0000fff3-0000-1000-8000-00805f9b34fb');
+
+      connectBtn.classList.add('hidden');
+      disconnectBtn.classList.remove('hidden');
+      reconnectBtn.disabled = false;
+
+      // initial state
+      setColorHex(document.getElementById('customColorInput').value);
+      setBrightness(parseInt(document.getElementById('brightnessSlider').value));
+
+      connectBtn.textContent = 'Connect';
+      connectBtn.disabled = false;
+    } catch(err){
+      console.error('BLE error', err);
+      connectBtn.textContent = 'Connect';
+      connectBtn.disabled = false;
+    }
+  }
+
+  function onDisconnected(event){
+    console.log('device disconnected', event);
+    char = null;
+    // show reconnect option
+    disconnectBtn.classList.add('hidden');
+    connectBtn.classList.remove('hidden');
+    reconnectBtn.disabled = false;
+    deviceNameEl.textContent = 'Disconnected';
+  }
+
+  function disconnectDevice(){
+    try{
+      if(bleDevice && bleDevice.gatt && bleDevice.gatt.connected){
+        bleDevice.gatt.disconnect();
+      }
+      char = null;
+      disconnectBtn.classList.add('hidden');
+      connectBtn.classList.remove('hidden');
+      reconnectBtn.disabled = false;
+      deviceNameEl.textContent = 'Not connected';
+      selectedDeviceEl.textContent = '—';
+      bleDevice = null;
+    }catch(e){console.warn(e)}
+  }
+
+  function forgetDevice(){
+    // clearing reference (won't un-pair OS-level)
+    bleDevice = null;
+    char = null;
+    deviceNameEl.textContent = 'Not connected';
+    selectedDeviceEl.textContent = '—';
+    reconnectBtn.disabled = true;
+    disconnectBtn.classList.add('hidden');
+    connectBtn.classList.remove('hidden');
+  }
+
+  function updateDeviceUI(){
+    const name = (bleDevice && (bleDevice.name || bleDevice.id)) || 'Not connected';
+    deviceNameEl.textContent = name;
+    selectedDeviceEl.textContent = name;
+  }
+
+  async function sendCommand(command, onSuccess){
+    if(!char){
+      console.warn('No connected characteristic to write to.');
+      return;
+    }
+    if(commandInProgress) return; // simple lock
+    commandInProgress = true;
+    try {
+      await char.writeValue(command);
+      commandInProgress = false;
+      if(typeof onSuccess === 'function') onSuccess();
+    } catch(err){
+      commandInProgress = false;
+      console.error('Write error', err);
+    }
+  }
+
+  /***********************
+   * Controls (color/brightness/effects)
+   ***********************/
+  // set color: sends BLEDOM frame: 0x7e .. data .. 0xef
+  function setColor(r,g,b,onSuccess){
+    // update picker + preview
+    const hex = rgbToHex(r,g,b);
+    document.getElementById('customColorInput').value = hex;
+    document.getElementById('colorPreview').style.background = hex;
+    document.getElementById('currentColorText').textContent = hex;
+
+    // build command (BLEDOM format used earlier)
+    const arr = new Uint8Array([0x7e, 0x00, 0x05, 0x03, limitHex(r), limitHex(g), limitHex(b), 0x00, 0xef]);
+    sendCommand(arr.buffer, onSuccess);
+  }
+
+  function setColorHex(hex, onSuccess){
+    const rgb = hexToRgb(hex);
+    setColor(rgb.r, rgb.g, rgb.b, onSuccess);
+  }
+
+  // brightness slider uses debounce to avoid spamming writes
+  let brightnessDebounce = null;
+  function setBrightness(value, onSuccess){
+    value = limitPerc(value);
+    document.getElementById('brightnessValue').textContent = value + '%';
+    // BLEDOM brightness command: 0x7e 0x00 0x01 <perc> ... 0xef
+    const arr = new Uint8Array([0x7e,0x00,0x01, limitPerc(value), 0x00,0x00,0x00,0x00,0xef]);
+    // small debounce
+    if(brightnessDebounce) clearTimeout(brightnessDebounce);
+    brightnessDebounce = setTimeout(()=> sendCommand(arr.buffer, onSuccess), 120);
+  }
+
+  function setEffectSpeed(speed){
+    const arr = new Uint8Array([0x7e,0x00,0x02, limitPerc(speed),0x00,0x00,0x00,0x00,0xef]);
+    sendCommand(arr.buffer);
+  }
+
+  function setModeEffect(effect){
+    if(!effect) return;
+    const effectsMap = {
+      red: 0x80, blue: 0x81, green: 0x82, cyan: 0x83, yellow: 0x84,
+      magenta: 0x85, white: 0x86, jump_rgb: 0x87, jump_rgbycmw: 0x88,
+      gradient_rgb: 0x89, gradient_rgbycmw: 0x8a, blink_rgbycmw: 0x95
+    };
+    if(!(effect in effectsMap)){
+      console.warn('Unknown effect', effect);
+      return;
+    }
+    const cmd = new Uint8Array([0x7e,0x00,0x03, limitHex(effectsMap[effect]), 0x03,0x00,0x00,0x00,0xef]);
+    sendCommand(cmd.buffer);
+    // reset dynamic select visually
+    document.getElementById('dynamicSelect').value = '';
+  }
+
+  function setModeDynamic(val){
+    if(val === '' || typeof val === 'undefined' || isNaN(val)) return;
+    const cmd = new Uint8Array([0x7e,0x00,0x03, limitHex(val), 0x04,0x00,0x00,0x00,0xef]);
+    sendCommand(cmd.buffer);
+    document.getElementById('modeSelect').value = '';
+  }
+
+  /***********************
+   * UI wiring
+   ***********************/
+  // connect/disconnect handlers
+  connectBtn.addEventListener('click', () => searchBLEDom());
+  disconnectBtn.addEventListener('click', () => disconnectDevice());
+  reconnectBtn.addEventListener('click', async () => {
+    if(!bleDevice) return;
+    try{
+      await bleDevice.gatt.connect();
+      updateDeviceUI();
+      reconnectBtn.disabled = true;
+    }catch(e){ console.error(e) }
+  });
+  forgetBtn.addEventListener('click', forgetDevice);
+
+  // color controls
+  document.querySelectorAll('.color-btn').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      const c = btn.dataset.color;
+      setColorHex(c);
+    });
+  });
+  document.getElementById('customColorInput').addEventListener('input', (e)=>{
+    document.getElementById('colorPreview').style.background = e.target.value;
+    document.getElementById('currentColorText').textContent = e.target.value.toUpperCase();
+  });
+  document.getElementById('applyColorBtn').addEventListener('click', () => {
+    setColorHex(document.getElementById('customColorInput').value);
+  });
+
+  // mode selects
+  document.getElementById('modeSelect').addEventListener('change', (e)=>{
+    setModeEffect(e.target.value);
+  });
+  document.getElementById('dynamicSelect').addEventListener('change', (e)=>{
+    setModeDynamic(parseInt(e.target.value));
+  });
+  document.getElementById('stopEffects').addEventListener('click', ()=>{
+    // send a simple color command to stop effects (set current color)
+    setColorHex(document.getElementById('customColorInput').value);
+  });
+
+  // brightness (sidebar) and quick brightness
+  const brightnessSlider = document.getElementById('brightnessSlider');
+  const brightnessValue = document.getElementById('brightnessValue');
+  brightnessSlider.addEventListener('input', e=>{
+    brightnessValue.textContent = e.target.value + '%';
+    setBrightness(parseInt(e.target.value));
+  });
+  document.getElementById('setFullBtn').addEventListener('click', ()=>{
+    brightnessSlider.value = 100;
+    brightnessValue.textContent = '100%';
+    setBrightness(100);
+  });
+  // quick brightness small control
+  document.getElementById('brightnessQuick').addEventListener('input', e=>{
+    const v = parseInt(e.target.value);
+    brightnessSlider.value = v;
+    brightnessValue.textContent = v + '%';
+    setBrightness(v);
+  });
+
+  // audio capture button (stub wired)
+  document.getElementById('captureAudioBtn').addEventListener('click', (e)=>{
+    // startCapture may be defined in your other scripts — call if present
+    if(typeof startCapture === 'function') startCapture(e.target);
+    else alert('startCapture() not implemented here — include your audio code.');
+  });
+
+  // keyboard enable (stub toggle)
+  document.getElementById('usekbd').addEventListener('change', (e)=>{
+    window.useKbd = !!e.target.checked;
+  });
+
+  // small visualizer (simple placeholder)
+  (function initVisualizer(){
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(30,150,255,0.06)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height/2);
+      for(let i=0;i<canvas.width;i+=10){
+        const y = canvas.height/2 + Math.sin((i+t)/20) * (canvas.height/4);
+        ctx.lineTo(i,y);
+      }
+      ctx.strokeStyle = 'rgba(30,167,255,0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      t += 1;
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
+
+  // show/hide connect vs controls initial
+  disconnectBtn.classList.add('hidden');
+  reconnectBtn.disabled = true;
+
+  // expose for console debugging
+  window._bledom = { searchBLEDom, setColor, setBrightness, setModeEffect, setModeDynamic, disconnectDevice, forgetDevice };
+
+  /***********************
+   * Safe stubs (if you use other scripts externally)
+   ***********************/
+  // Avoid errors if those scripts aren't loaded
+  if(typeof startCapture === 'undefined') window.startCapture = function(){ console.warn('startCapture() not available in this build'); };
+  if(typeof reqMidi === 'undefined') window.reqMidi = function(){ console.warn('reqMidi() not available'); };
+
+  // Update UI device name if bleDevice was set by other code
+  setInterval(()=>{ if(bleDevice) updateDeviceUI(); }, 2000);
+  </script>
 </body>
 </html>
