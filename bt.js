@@ -17,9 +17,10 @@ function onDisconnected(event) {
 var char = null;
 function searchBLEDom() {
 	navigator.bluetooth.requestDevice({
-		filters: [
-			{ services: ['0000fff0-0000-1000-8000-00805f9b34fb'] }
-		]
+ 	 acceptAllDevices: true,
+ 	 optionalServices: ['0000fff0-0000-1000-8000-00805f9b34fb']
+	})
+
 	}).then(function(device) {
 		console.log(device);
 		device.addEventListener('gattserverdisconnected', onDisconnected);
