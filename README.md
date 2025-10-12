@@ -1,6 +1,6 @@
 # Updated BLEDOM Web Controller
 
-Edited for better UI and pairing system
+Edited for better UI and pairing system (coded using AI)
 
 -----
 Supports:
@@ -14,5 +14,10 @@ Supports:
 
 Need to fix:
 * Power Controls <- Real off cmd, not rgb(0,0,0)
+(How tf did I break these)
 * Audio control via screenshare
 * Keyboard control & MIDI control + popup
+
+------
+
+Thx [@FreekBes](https://github.com/FreekBes) for the scripts. I just edited the UI
