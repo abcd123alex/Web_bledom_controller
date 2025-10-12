@@ -124,15 +124,14 @@
           </div>
         </div>
 
-        <!-- Combined Effects card: Presets + Modes + Speed -->
+        <!-- Preset Effects (buttons) -->
         <div class="card" style="margin-bottom:14px">
           <div class="section-title">
-            <strong>Effects</strong>
-            <div class="muted">Presets, modes and speed controls</div>
+            <strong>Preset Effects</strong>
+            <div class="muted">Tap a preset to apply • Some effects might not work</div>
           </div>
 
-          <!-- Preset Effects (buttons) -->
-          <div id="presetEffectsSections" style="margin-bottom:12px">
+          <div id="presetEffectsSections">
             <div class="preset-section">
               <h3 class="preset-section-title">Solid</h3>
               <div id="presetGridSolid" class="preset-grid" aria-label="Solid effects"></div>
@@ -150,22 +149,34 @@
               <div id="presetGridBlink" class="preset-grid" aria-label="Blink effects"></div>
             </div>
           </div>
+        </div>
 
-          <!-- Modes -->
-          <div style="margin-bottom:12px">
+        <!-- Effects & Modes -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Effects &amp; Modes</strong>
+            <div class="muted">Select dynamic mode • Select Models</div>
+          </div>
+          <div>
             <label class="small">Dynamic mode</label>
             <select id="dynamicSelect">
-              <option value="" selected disabled>Choose dynamic</option>
+              <option value="" selected="" disabled="">Choose dynamic</option>
               <option value="0">Colorful Mode</option>
               <option value="1">Beat On/Off</option>
               <option value="2">Beat Color Mode</option>
               <option value="3">Fast Beat</option>
             </select>
           </div>
+        </div>
 
-          <!-- Speed & Stop -->
+        <!-- Effect Speed & Stop -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="section-title">
+            <strong>Effect Speed</strong>
+            <div class="muted">Controls speed for effects &amp; dynamics</div>
+          </div>
           <div>
-            <label class="small" for="effectSpeed">Effect speed</label>
+            <label class="small" for="effectSpeed">Effect speed (Live Change)</label>
             <input id="effectSpeed" type="range" min="0" max="100" step="1" value="50">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
               <div class="muted">Current speed: <span id="effectSpeedValue">50</span></div>
@@ -177,7 +188,7 @@
         <!-- Audio Capture -->
         <div class="card" style="margin-bottom:14px">
           <div class="section-title">
-            <strong>Audio capture (optional)</strong>
+            <strong>Audio capture</strong>
             <div class="muted">Use system audio to drive effects</div>
           </div>
 
@@ -230,6 +241,25 @@
   </div>
 
   <script src="main.js"></script>
+  <script src="kbd.js"></script>
+  <script src="input.js"></script>
+
+<script>
+  // Hook audio capture button
+  document.addEventListener("DOMContentLoaded", () => {
+    const captureBtn = document.getElementById("captureAudioBtn");
+    captureBtn?.addEventListener("click", () => startCapture(captureBtn));
+
+    // Keyboard toggle
+    const useKbdBox = document.getElementById("usekbd");
+    if (useKbdBox) {
+      useKbdBox.addEventListener("change", e => {
+        useKbd = e.target.checked;
+        console.log("Keyboard control:", useKbd);
+      });
+    }
+  });
+</script>
 
 
 </body></html>
