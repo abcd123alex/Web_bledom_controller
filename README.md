@@ -20,8 +20,8 @@ Need to fix:
 ^ add stop sharing/control button due to brightness getting messed up
 
 Notes:
-* Removed Keyboard control due to focus on tab
-* Removed Midi control due to unable to test
+* Removed Keyboard control due to you needing to focus on tab to use
+* Removed Midi control due to being unable to test
 
 ------
 
