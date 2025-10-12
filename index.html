@@ -206,6 +206,18 @@
             <canvas id="visualizer" width="800" height="120" style="width:100%;height:90px;background:#05060a;border-radius:8px;margin-top:10px"></canvas>
           </div>
         </div>
+        <!-- Keyboard / MIDI -->
+        <div class="card">
+          
+
+          <div>
+            <label><input id="usekbd" type="checkbox"></label>
+            <!--idk why tf it wont work without this thing-->   
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Right sidebar -->
       <aside>
@@ -222,7 +234,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     const captureBtn = document.getElementById("captureAudioBtn");
     captureBtn?.addEventListener("click", () => startCapture(captureBtn));
-  });
+
+
+      });
 </script>
 
 
