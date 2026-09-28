@@ -1,6 +1,6 @@
 # Updated BLEDOM Web Controller
 
-Edited for better UI and pairing system (coded using AI)
+Edited for better UI and pairing system (supports more of those cheap bluetooth led strips from aliexpress)
 
 -----
 Supports:
